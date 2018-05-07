@@ -4,7 +4,8 @@
 #include "fractal.h"
 #include <string.h>
 #include <stdint.h>
-#define taille 64
+#include <semaphore.h>
+
 // %lf pour lire un double, %d pour un int, %s pour un string.
 
 struct fractal *firstBuffer = (struct fractal *) malloc(10*sizeof(struct fractal));
@@ -32,21 +33,26 @@ void* OpenFile(void *nameFile){
 	int comp = strcmp("-",nameFile);
 
 	if(comp != 0){
-		char *str = NULL;
-		int scan = fscanf(name, "%s", str);
+		int c = 0;
+		while(c != EOF){
+			c = fgetc(name);
+			char str[63];
+			int scan = fscanf(name, "%s", str);
 		
-		if(str[0]=="#"){
-			char *lineptr = NULL;
-			size_t n = 500;
-			ssize_t skip = getline(&lineptr,&n,name);
-		}
+			if(str[0]=="#"){
+				char *lineptr = NULL;
+				size_t n = 500;
+				ssize_t skip = getline(&lineptr,&n,name);
+			}
 
-		else{
-			uint32_t larg;
-			uint32_t haut;
-			double part_reel;
-			double part_imag;			
-			fscanf(fichier, "%d %d %lf %lf", &larg, &haut, &part_reel, &part_imag);
+			else{
+				uint32_t larg;
+				uint32_t haut;
+				double part_reel;
+				double part_imag;			
+				int scan2 fscanf(fichier, "%d %d %lf %lf", &larg, &haut, &part_reel, &part_imag);
+				struct fractal *f = fractal_new(str, (int)larg, (int)haut, part_reel, part_imag);
+			}
 		}
 	}
 
@@ -58,8 +64,9 @@ void* OpenFile(void *nameFile){
 		double part_reel;
 		double part_imag;			
 		scanf("%s %d %d %lf %lf", str, &larg, &haut, &part_reel, &part_imag);
-		}
-		
+		struct fractal *f = fractal_new(str, (int)larg, (int)haut, part_reel, part_imag);	
 	}
+	
+	 
 
 }
