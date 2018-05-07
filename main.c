@@ -46,8 +46,20 @@ void* OpenFile(void *nameFile){
 			uint32_t haut;
 			double part_reel;
 			double part_imag;			
-			fscanf(fichier, "%d %d %lf %lf", larg, haut, part_reel, part_imag);
+			fscanf(fichier, "%d %d %lf %lf", &larg, &haut, &part_reel, &part_imag);
 		}
+	}
+
+	else{
+		printf("Veuillez entrer votre fractale en respectant la manière suivante: Nom_de_Fractale Largeur(entier de 32bits) Hauteur(entier de 32bits) Partie_Reele Partie_Imaginaire. Respectez bien les espaces et n'entrez pas un nom dépassant 64 caractères.");
+		char str[64] = NULL;
+		uint32_t larg;
+		uint32_t haut;
+		double part_reel;
+		double part_imag;			
+		scanf("%s %d %d %lf %lf", str, &larg, &haut, &part_reel, &part_imag);
+		}
+		
 	}
 
 }
