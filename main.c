@@ -5,8 +5,14 @@
 #include <string.h>
 #include <stdint.h>
 #include <semaphore.h>
+#include <pthread.h>
+
+void* OpenFile(void *nameFile);
+void insert_fract(struct fractal *f);
 
 // %lf pour lire un double, %d pour un int, %s pour un string.
+
+//TODO créer les sémaphores, mutex et une structure du genre liste chaînée pour les buffer, les fonctions insert_fract et remove_fract qui ajoute/retire respectivement une fractale au premier buffer. 
 
 struct fractal *firstBuffer = (struct fractal *) malloc(10*sizeof(struct fractal));
 struct fractal *secondBuffer = (struct fractal *) malloc(10*sizeof(struct fractal));
@@ -19,6 +25,11 @@ int main()
     /* TODO */
 
     return 0;
+}
+
+
+void insert_fract(struct fractal *f){
+
 }
 
 void* OpenFile(void *nameFile){
