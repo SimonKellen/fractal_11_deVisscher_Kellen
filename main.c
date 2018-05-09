@@ -9,6 +9,7 @@
 #include "buffer.h"
 
 void* OpenFile(void *nameFile);
+void* calcul();
 
 // %lf pour lire un double, %d pour un int, %s pour un string.
 
@@ -43,13 +44,47 @@ int main(){
 	
 	//Partie thread, et comparaison des moyennes
 
+	int nbr;
+	int calcul_max = 4;
 	int e = strcmp("-d",argv[1]);
-	if(e==0){
-		//il faut générer les bitmap de toutes les fractales...
+	if(e==0){ //si argv[1] = -d
+		long a = atol(argv[2]);
+		if(a !=0){ //on a un int, donc un nombre max de thread
+			nbr = argc-4;
+		}
+		else{ //on a un nom de fichier direct, pas de nombre max de thread
+			nbr = argc-3;
+			calcul_max = a;	
+		}
 	}
-	else{
-		//Comparer pour voir si on a un nombre max de thread de calcul ou un nom de fichier.
+	else{ //on a pas de -d, ça veut dire qu'on ne doit pas générer le bitmap de toutes les fractales
+		long a = atol(argv[1]);
+		if(a !=0){ //on a un int, donc un nombre max de thread
+			nbr = argc-3;
+			calcul_max = a;
+		}
+		else{ //On n'a ni int, ni -d
+			nbr = argc-2;		
+		}	
 	}
+	//threads de lecture
+	pthread_t read_Thread[nbr];
+    	for(i=0;i<nbr;i++){
+        	main_error = pthread_create(&(read_Thread[i]),NULL,&OpenFile,argv[argc-2-i]);
+        	if(main_error!=0){
+            		frpintf(stderr,"pthread_create"); 
+			exit(-1);
+        	}
+    	}
+	//threads de calcul
+	pthread_t calcul_Thread[calcul_max];
+    	for(i=0;i<calcul_max;i++){
+        	main_error1 = pthread_create(&(calcul_Thread[i]),NULL,&calcul,NULL);
+        	if(main_error1!=0){
+            		frpintf(stderr,"pthread_create"); 
+			exit(-1);
+        	}
+    	}
 
 	return 0;
 }
@@ -125,7 +160,7 @@ void* OpenFile(void *nameFile){
 	b = 0;
 }
 
-//Retire les fractales du buffer, calcul (moyenne) et remise dans le deuxième buffer.
+//Retire les fractales du buffer, calcule leur moyenne et les met dans le deuxième buffer.
 
 
 void* calcul(){
