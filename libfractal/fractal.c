@@ -13,7 +13,7 @@ struct fractal *fractal_new(const char *name, int width, int height, double a, d
         free(f);
         return -1;
     }
-    strcpy(nom, name);
+    f->nom = strcpy(nom, name);
     f->largeur = width;
     f->hauteur = height;
     f->reel = a;
