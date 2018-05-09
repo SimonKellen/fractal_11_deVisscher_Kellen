@@ -18,6 +18,7 @@ void* calcul();
 
 struct Buffer *buffer1;
 struct Buffer *buffer2;
+struct Buffer *buffer3;
 pthread_mutex_t mutex;
 sem_t empty;
 sem_t full;
@@ -69,7 +70,7 @@ int main(){
 	}
 	//threads de lecture
 	pthread_t read_Thread[nbr];
-    	for(i=0;i<nbr;i++){
+    	for(int i=0;i<nbr;i++){
         	main_error = pthread_create(&(read_Thread[i]),NULL,&OpenFile,argv[argc-2-i]);
         	if(main_error!=0){
             		frpintf(stderr,"pthread_create"); 
@@ -78,14 +79,16 @@ int main(){
     	}
 	//threads de calcul
 	pthread_t calcul_Thread[calcul_max];
-    	for(i=0;i<calcul_max;i++){
+    	for(int i=0;i<calcul_max;i++){
         	main_error1 = pthread_create(&(calcul_Thread[i]),NULL,&calcul,NULL);
         	if(main_error1!=0){
             		frpintf(stderr,"pthread_create"); 
 			exit(-1);
         	}
     	}
-
+	while(true){
+			
+	}
 	return 0;
 }
 

@@ -48,6 +48,8 @@ const char *fractal_get_name(const struct fractal *f);
  */
 int fractal_get_value(const struct fractal *f, int x, int y);
 
+double fractal_get_moyenne(const struct fractal *f);
+
 /*
  * fractal_set_value: défini la valeur correspondant à un pixel de l'image
  *

@@ -91,3 +91,7 @@ double fractal_get_b(const struct fractal *f)
 {
     return f->imaginaire;
 }
+
+double fractal_get_moyenne(const struct fractal *f){
+	return f->moyenne;
+}
