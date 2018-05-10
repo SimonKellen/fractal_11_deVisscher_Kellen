@@ -9,11 +9,11 @@ struct fractal *fractal_new(const char *name, int width, int height, double a, d
         return -1;
     }
     f->nom = (char*)malloc(sizeof(name)+1);
-    if(nom == NULL){
+    if(f->nom == NULL){
         free(f);
         return -1;
     }
-    f->nom = strcpy(nom, name);
+    f->nom = strcpy(f->nom, name);
     f->largeur = width;
     f->hauteur = height;
     f->reel = a;
@@ -49,7 +49,7 @@ struct fractal *fractal_new(const char *name, int width, int height, double a, d
 
 void fractal_free(struct fractal *f)
 {
-    for(int i=0; i<heigth; i++){
+    for(int i=0; i<f->hauteur; i++){
         free(f->valeur[i]);
     }
     free(f->valeur);

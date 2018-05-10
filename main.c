@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include "fractal.h"
+#include "libfractal/fractal.h"
 #include <string.h>
 #include <stdint.h>
 #include <semaphore.h>
@@ -10,10 +10,6 @@
 
 void* OpenFile(void *nameFile);
 void* calcul();
-
-// %lf pour lire un double, %d pour un int, %s pour un string.
-
-//TODO créer les sémaphores, mutex  
 
 
 struct Buffer *buffer1;
@@ -30,7 +26,7 @@ int b = 0;
 
 
 
-int main(){
+int main(int argc, char *argv[]){
 
         //Initialisation des buffer, mutex et sémaphores.
 	
@@ -46,9 +42,11 @@ int main(){
 	//Partie thread, et comparaison des moyennes
 
 	int nbr;
+	int all;
 	int calcul_max = 4;
 	int e = strcmp("-d",argv[1]);
 	if(e==0){ //si argv[1] = -d
+		all = 1;
 		long a = atol(argv[2]);
 		if(a !=0){ //on a un int, donc un nombre max de thread
 			nbr = argc-4;
@@ -59,6 +57,7 @@ int main(){
 		}
 	}
 	else{ //on a pas de -d, ça veut dire qu'on ne doit pas générer le bitmap de toutes les fractales
+		all = 0;
 		long a = atol(argv[1]);
 		if(a !=0){ //on a un int, donc un nombre max de thread
 			nbr = argc-3;
@@ -71,24 +70,86 @@ int main(){
 	//threads de lecture
 	pthread_t read_Thread[nbr];
     	for(int i=0;i<nbr;i++){
-        	main_error = pthread_create(&(read_Thread[i]),NULL,&OpenFile,argv[argc-2-i]);
+        	int main_error = pthread_create(&(read_Thread[i]),NULL,&OpenFile,argv[argc-2-i]);
         	if(main_error!=0){
-            		frpintf(stderr,"pthread_create"); 
+            		fprintf(stderr,"pthread_create"); 
 			exit(-1);
         	}
     	}
 	//threads de calcul
 	pthread_t calcul_Thread[calcul_max];
     	for(int i=0;i<calcul_max;i++){
-        	main_error1 = pthread_create(&(calcul_Thread[i]),NULL,&calcul,NULL);
+        	int main_error1 = pthread_create(&(calcul_Thread[i]),NULL,&calcul,NULL);
         	if(main_error1!=0){
-            		frpintf(stderr,"pthread_create"); 
+            		fprintf(stderr,"pthread_create"); 
 			exit(-1);
         	}
     	}
-	while(true){
+	while(!isEmpty(buffer1) && !isEmpty(buffer2)){
+		if(all == 1){ //On a -d donc on doit faire le bitmap de toute les fractale
+			sem_wait(&full);
+			// attente d'un slot rempli
+			pthread_mutex_lock(&mutex);
+			// section critique
+			struct fractal *f=retirer(buffer2);
+			pthread_mutex_unlock(&mutex);
+			sem_post(&empty);
+			// il y a un slot libre en plus
+			char* dest;
+			int b = sprintf(dest, "%s.bmp", f->nom);
+			if(b <= 0){
+				return -1;
+			}
+			int a = write_bitmap_sdl(f, dest);
 			
+			if(a != 0){
+				return -1;
+			}
+			
+		}
+		else{
+			sem_wait(&full);
+			// attente d'un slot rempli
+			pthread_mutex_lock(&mutex);
+			// section critique
+			struct fractal *f=retirer(buffer2);
+			pthread_mutex_unlock(&mutex);
+			sem_post(&empty);
+			// il y a un slot libre en plus
+			double a = f->moyenne;
+			if(isEmpty(buffer3)){
+				add(buffer3, f);
+			}
+			else{
+				struct Node *node = buffer3->top;
+				if(a > ((node->fractal)->moyenne)){
+					while(!isEmpty(buffer3)){
+						struct fractal *g=retirer(buffer2);
+						free(g);					
+					}
+					int test = add(buffer3, f);
+					if(test != 0){return test;}				
+				}
+				else{
+					if(a == ((node->fractal)->moyenne)){
+						int test = add(buffer3, f);
+						if(test != 0){return test;}
+					}
+					else{ free(f); }				
+				}			
+			}
+		}		
 	}
+	struct fractal *f = retirer(buffer3);
+	char* dest;
+	int b = sprintf(dest, "%s.bmp", f->nom);
+		if(b <= 0){
+			return -1;
+		}
+	int a = write_bitmap_sdl(f, dest);
+		if(a != 0){
+			return -1;
+		}
 	return 0;
 }
 
@@ -110,7 +171,7 @@ void* OpenFile(void *nameFile){
 		int c = 0;
 		while(c != EOF){
 			a =1;
-			c = fgetc(name);
+			c = fgetc(fichier);
 			char str[63];
 			int scan = 0;
 			while(scan < 1){
@@ -119,7 +180,7 @@ void* OpenFile(void *nameFile){
 			if(str[0]=="#"){
 				char *lineptr = NULL;
 				size_t n = 500;
-				ssize_t skip = getline(&lineptr,&n,name);
+				ssize_t skip = getline(&lineptr,&n,fichier);
 			}
 
 			else{
@@ -132,13 +193,13 @@ void* OpenFile(void *nameFile){
 					scan2 = fscanf(fichier, "%u %u %lf %lf", &larg, &haut, &part_reel, &part_imag);
 				}
 				struct fractal *f = fractal_new(str, (int)larg, (int)haut, part_reel, part_imag);
+				sem_wait(&empty); // attente d'un slot libre
+				pthread_mutex_lock(&mutex);
+				// section critique
+				add(buffer1, f);
+				pthread_mutex_unlock(&mutex);
+				sem_post(&full); // il y a un slot rempli en plus
 			}
-			sem_wait(&empty); // attente d'un slot libre
-			pthread_mutex_lock(&mutex);
-			// section critique
-			add(buffer1, f);
-			pthread_mutex_unlock(&mutex);
-			sem_post(&full); // il y a un slot rempli en plus
 		}
 		a = 0;
 	}
@@ -146,7 +207,7 @@ void* OpenFile(void *nameFile){
 	else{
 		printf("Veuillez entrer votre fractale en respectant la manière suivante: Nom_de_Fractale Largeur(entier de 32bits) Hauteur(entier de 32bits) Partie_Reele Partie_Imaginaire. Respectez bien les espaces et n'entrez pas un nom dépassant 64 caractères.\n\n");
 		b = 1;
-		char str[64] = NULL;
+		char str[64];
 		uint32_t larg;
 		uint32_t haut;
 		double part_reel;
@@ -172,7 +233,7 @@ void* calcul(){
 		// attente d'un slot rempli
 		pthread_mutex_lock(&mutex);
 		// section critique
-		struct fractal *f=remove(buffer1);
+		struct fractal *f=retirer(buffer1);
 		pthread_mutex_unlock(&mutex);
 		sem_post(&empty);
 		// il y a un slot libre en plus
@@ -189,7 +250,7 @@ void* calcul(){
 				fractal_set_value(f,i,j,val);
 			}
 		}
-		fractal->moyenne = (double)(sum/(width*height));
+		f->moyenne = (double)(sum/(max_width*max_height));
 
 		sem_wait(&empty1); // attente d'un slot libre
 		pthread_mutex_lock(&mutex1);

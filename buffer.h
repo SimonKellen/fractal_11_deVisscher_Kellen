@@ -24,7 +24,7 @@ struct Buffer {
 /**
 * Initialise une node contenant une fractale fractal.
 */
-struct Node *init_Node(fractal* fractal);
+struct Node *init_Node(struct fractal* fractal);
 
 
 /**
@@ -40,7 +40,7 @@ int add(struct Buffer *buffer, struct fractal *fractal);
 /**
 * Retire la node qui est au top du buffer et retourne sa fractale.
 */
-struct fractal *remove(struct Buffer *buffer);
+struct fractal *retirer(struct Buffer *buffer);
 
 /**
 * Vérifie si la liste est vide à l'aide d'une variable globale count qui est incrémentée/
@@ -56,5 +56,5 @@ int isFull(struct Buffer *buffer);
 /**
 * Libère le pointeur vers l'espace mémoire d'un buffer. Vide le buffer si celui-ci ne l'est pas.
 */
-void *free_buffer(struct Buffer *buffer)
+void *free_buffer(struct Buffer *buffer);
 
