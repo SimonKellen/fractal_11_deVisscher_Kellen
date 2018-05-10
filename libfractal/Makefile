@@ -14,5 +14,5 @@ $(LIBFILE): $(OBJ)
 *.o:
 	$(CC) -o $@ -c $< $(CFLAGS)
 
-clean:
+clean:libfractal.a *.o
 	rm *.o libfractal.a

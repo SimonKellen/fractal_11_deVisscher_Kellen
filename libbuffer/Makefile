@@ -11,8 +11,8 @@ all: $(SRC) $(LIBFILE)
 $(LIBFILE): $(OBJ)
 	$(AR) r $@ $(OBJ)
 
-*.o:
+libbuffer.o: libbuffer.c libbuffer.h
 	$(CC) -o $@ -c $< $(CFLAGS)
 
-clean:
+clean:libbuffer.a *.o
 	rm *.o libbuffer.a

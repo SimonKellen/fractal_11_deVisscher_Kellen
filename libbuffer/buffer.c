@@ -3,13 +3,13 @@
 #include <stdlib.h>
 #include <limits.h>
 #include "buffer.h"
-#include "libfractal/fractal.h"
+#include "/home/simon/Documents/fractal_11_deVisscherJeremy_KellenSimon/libfractal/fractal.h"
 
 struct Node *init_Node(struct fractal* fractal){ 
 
 	struct Node *node = malloc(sizeof(struct Node));
 	if(node == NULL){
-        	return -1;
+        	return NULL;
 	}
 	node->fractal = fractal;
 	node->next = NULL;
@@ -20,7 +20,7 @@ struct Buffer *init_Buffer(){
 
 	struct Buffer* buffer = (struct Buffer*)malloc(sizeof(struct Buffer));
 	if(buffer == NULL){
-		return -1;
+		return NULL;
 	}
 	buffer->top = NULL;
 	(buffer->size) = 0;
@@ -56,7 +56,7 @@ int add(struct Buffer *buffer ,struct fractal* fractal){
 
 struct fractal *retirer(struct Buffer *buffer){
 	if(buffer==NULL){
-		return -1;
+		return NULL;
 	}
 	struct Node *node = buffer->top;
 	buffer->top = node->next;
@@ -68,7 +68,7 @@ struct fractal *retirer(struct Buffer *buffer){
 
 void *free_buffer(struct Buffer *buffer){
 	if(buffer==NULL){
-		return -1;	
+		return NULL;	
 	}
 	if(isEmpty(buffer)){
 		free(buffer);

@@ -6,7 +6,8 @@
 #include <stdint.h>
 #include <semaphore.h>
 #include <pthread.h>
-#include "buffer.h"
+#include "libbuffer/buffer.h"
+#include "SDL/SDL.h"
 
 void* OpenFile(void *nameFile);
 void* calcul();
@@ -177,7 +178,7 @@ void* OpenFile(void *nameFile){
 			while(scan < 1){
 				fscanf(fichier, "%s", str);		
 			}
-			if(str[0]=="#"){
+			if(str[0]=='#'){
 				char *lineptr = NULL;
 				size_t n = 500;
 				ssize_t skip = getline(&lineptr,&n,fichier);

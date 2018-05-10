@@ -11,7 +11,7 @@ struct fractal *fractal_new(const char *name, int width, int height, double a, d
     f->nom = (char*)malloc(sizeof(name)+1);
     if(f->nom == NULL){
         free(f);
-        return -1;
+        return NULL;
     }
     f->nom = strcpy(f->nom, name);
     f->largeur = width;
@@ -23,23 +23,23 @@ struct fractal *fractal_new(const char *name, int width, int height, double a, d
     if(f->valeur == NULL){
         free(f->nom);
         free(f);
-        return -1;
+        return NULL;
     }
 
     int i =0;
-    for(i; i<height; i++){
+    for(int i; i<height; i++){
         f->valeur[i] = (int*)malloc(sizeof(int));
 
         if(f->valeur[i] == NULL){
 
-            for(i=i-1; i>=0;i--){
+            for(int i=i-1; i>=0;i--){
                 free(f->valeur[i]);
             } //fin du for
 
             free(f->valeur);
             free(f->nom);
             free(f);
-            return -1;
+            return NULL;
 
         }//fin du if
 
