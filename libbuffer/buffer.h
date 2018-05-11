@@ -17,7 +17,7 @@ struct Node {
 * @name: nom du buffer
 */
 struct Buffer {
-	struct node *top;
+	struct Node *top;
 	int size;
 };
 
